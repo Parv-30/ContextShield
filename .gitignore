@@ -10,6 +10,7 @@ build/
 backend/models/*.bin
 backend/models/*.safetensors
 backend/data/raw/
+backend/data/processed/
 .pytest_cache/
 .coverage
 frontend/dist/
