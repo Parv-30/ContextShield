@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+node_modules/
+dist/
+build/
+*.egg-info/
+.env
+backend/models/*.bin
+backend/models/*.safetensors
+backend/data/raw/
+.pytest_cache/
+.coverage
+frontend/dist/
