@@ -8,7 +8,7 @@ def tiny_classifier(tmp_path_factory):
     from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
     model_dir = tmp_path_factory.mktemp("tiny_model")
-    tokenizer_name = "hf-internal-testing/tiny-random-XLMRobertaXL"
+    tokenizer_name = "hf-tiny-model-private/tiny-random-XLMRobertaXLForSequenceClassification"
     try:
         tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
         model = AutoModelForSequenceClassification.from_pretrained(
