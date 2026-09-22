@@ -1,6 +1,5 @@
 # backend/scripts/check_training_feasible.py
 import time
-from pathlib import Path
 
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
