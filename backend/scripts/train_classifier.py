@@ -1,3 +1,4 @@
+import argparse
 import json
 from pathlib import Path
 
@@ -17,6 +18,10 @@ MODEL_NAME = "xlm-roberta-base"
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--max-train-examples", type=int, default=None)
+    parsed_args = parser.parse_args()
+
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
     model = AutoModelForSequenceClassification.from_pretrained(
         MODEL_NAME,
@@ -25,6 +30,8 @@ def main():
     )
 
     train_examples = load_jsonl(DATA_DIR / "train.jsonl")
+    if parsed_args.max_train_examples is not None:
+        train_examples = train_examples[: parsed_args.max_train_examples]
     val_examples = load_jsonl(DATA_DIR / "val.jsonl")
     test_examples = load_jsonl(DATA_DIR / "test.jsonl")
 
