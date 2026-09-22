@@ -7,8 +7,7 @@ dist/
 build/
 *.egg-info/
 .env
-backend/models/*.bin
-backend/models/*.safetensors
+backend/models/
 backend/data/raw/
 backend/data/processed/
 .pytest_cache/
