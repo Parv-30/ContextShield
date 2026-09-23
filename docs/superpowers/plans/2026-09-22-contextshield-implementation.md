@@ -2825,23 +2825,41 @@ No commit needed — this is a verification-only task.
 
 ## Phase C: Frontend
 
-### Task 18: Vite React + TypeScript scaffold
+### Task 18: Vite React + TypeScript scaffold with design system foundation
 
 **Files:**
 - Create: `frontend/` (via Vite scaffolding command)
-- Modify: `frontend/src/App.tsx`, `frontend/src/main.tsx`
-- Create: `frontend/.env.development`
+- Modify: `frontend/src/App.tsx`, `frontend/src/main.tsx`, `frontend/src/index.css`
+- Create: `frontend/.env.development`, `frontend/tailwind.config.js`, `frontend/postcss.config.js`
+
+**Design system:** this project has a persisted design system at
+`design-system/contextshield/MASTER.md` (style: "Data-Dense Dashboard";
+palette: primary `#1E40AF`, secondary `#3B82F6`, accent `#D97706`,
+background `#F8FAFC`, destructive `#DC2626`; typography: Fira Sans body /
+Fira Code for numeric/data display; 8px spacing scale at density 7/10).
+Read that file before starting this task — its color tokens, spacing
+scale, and component specs (buttons, cards, inputs) are implemented here as
+Tailwind theme extensions and CSS variables, and every later frontend task
+(19-22) builds on them. This task's job is to make the professional visual
+foundation (colors, type, spacing, base component classes) available
+project-wide, not to build any page content yet.
 
 **Interfaces:**
-- Produces: a running Vite dev server at `http://localhost:5173` with a placeholder page; `frontend/src/api/client.ts` will be added in Task 19 as the shared API base.
+- Produces: a running Vite dev server at `http://localhost:5173` styled
+  with Tailwind CSS using the ContextShield design tokens; `frontend/src/api/client.ts`
+  will be added in Task 19 as the shared API base.
 
 - [ ] **Step 1: Scaffold the project**
 
 Run: `cd "C:/Users/PARV/Desktop/Social" && npm create vite@latest frontend -- --template react-ts`
 
-- [ ] **Step 2: Install dependencies plus routing and charting libraries**
+- [ ] **Step 2: Install dependencies — routing, charting, Tailwind, and an icon set**
 
-Run: `cd frontend && npm install && npm install react-router-dom recharts`
+Run: `cd frontend && npm install && npm install react-router-dom recharts lucide-react && npm install -D tailwindcss postcss autoprefixer && npx tailwindcss init -p`
+
+(`lucide-react` provides SVG icons — the design system's pre-delivery
+checklist explicitly forbids emoji-as-icons, so all icons in this project
+use `lucide-react` components, never emoji characters.)
 
 - [ ] **Step 3: Create `frontend/.env.development`**
 
@@ -2849,15 +2867,76 @@ Run: `cd frontend && npm install && npm install react-router-dom recharts`
 VITE_API_BASE_URL=http://localhost:8000
 ```
 
-- [ ] **Step 4: Replace `frontend/src/App.tsx` with a minimal placeholder**
+- [ ] **Step 4: Configure `frontend/tailwind.config.js` with the design system's tokens**
+
+```js
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  theme: {
+    extend: {
+      colors: {
+        primary: "#1E40AF",
+        "on-primary": "#FFFFFF",
+        secondary: "#3B82F6",
+        accent: "#D97706",
+        "on-accent": "#000000",
+        background: "#F8FAFC",
+        foreground: "#1E3A8A",
+        card: "#FFFFFF",
+        muted: "#E9EEF6",
+        "muted-foreground": "#475569",
+        border: "#DBEAFE",
+        destructive: "#DC2626",
+        "on-destructive": "#FFFFFF",
+        ring: "#1E40AF",
+      },
+      fontFamily: {
+        sans: ["Fira Sans", "system-ui", "sans-serif"],
+        mono: ["Fira Code", "monospace"],
+      },
+      boxShadow: {
+        sm: "0 1px 2px rgba(0,0,0,0.05)",
+        md: "0 4px 6px rgba(0,0,0,0.1)",
+        lg: "0 10px 15px rgba(0,0,0,0.1)",
+      },
+      borderRadius: {
+        DEFAULT: "8px",
+        lg: "12px",
+      },
+    },
+  },
+  plugins: [],
+}
+```
+
+- [ ] **Step 5: Replace `frontend/src/index.css` with Tailwind directives and the Google Fonts import**
+
+```css
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-background text-foreground font-sans antialiased;
+}
+```
+
+- [ ] **Step 6: Replace `frontend/src/App.tsx` with a styled placeholder**
 
 ```tsx
 // frontend/src/App.tsx
 function App() {
   return (
-    <div>
-      <h1>ContextShield</h1>
-      <p>Multilingual harmful content detection and trend analysis.</p>
+    <div className="min-h-screen bg-background">
+      <header className="border-b border-border bg-card px-6 py-4">
+        <h1 className="text-xl font-semibold text-foreground">ContextShield</h1>
+        <p className="text-sm text-muted-foreground">
+          Multilingual harmful content detection and trend analysis
+        </p>
+      </header>
     </div>
   );
 }
@@ -2865,18 +2944,22 @@ function App() {
 export default App;
 ```
 
-- [ ] **Step 5: Run the dev server and verify it loads**
+- [ ] **Step 7: Run the dev server and verify it loads with styling applied**
 
 Run: `cd frontend && npm run dev`
 Expected: server starts on port 5173; open `http://localhost:5173` in a
-browser (or use the built-in browser tool) and confirm "ContextShield"
-heading renders.
+browser (or use the built-in browser tool) and confirm the header renders
+with the dark-blue "ContextShield" heading, muted subtitle, card-white
+header background, and a visible bottom border — not unstyled black-on-white
+text. Take a screenshot or use `read_page`/`get_page_text` plus a visual
+check to confirm Tailwind classes are actually applying (not just present
+as literal class strings with no effect).
 
-- [ ] **Step 6: Stop the dev server, commit**
+- [ ] **Step 8: Stop the dev server, commit**
 
 ```bash
 git add frontend/
-git commit -m "chore: scaffold React + TypeScript frontend with Vite"
+git commit -m "chore: scaffold React + TypeScript frontend with Tailwind design system"
 ```
 
 ---
@@ -3103,28 +3186,95 @@ git commit -m "feat: add typed API client for backend integration"
 - Create: `frontend/src/pages/AnalyzerPage.tsx`
 - Create: `frontend/src/components/EscalationChart.tsx`
 - Create: `frontend/src/components/MessageList.tsx`
-- Modify: `frontend/src/App.tsx` (add routing)
+- Create: `frontend/src/components/CategoryBadge.tsx`
+- Create: `frontend/src/components/AppLayout.tsx`
+- Modify: `frontend/src/App.tsx` (add routing + shared layout)
+
+**Design system:** follows `design-system/contextshield/MASTER.md` — read it
+if you haven't already this session. Category badges use semantic colors
+(not the raw palette): `hate_speech`/`threat` render in destructive red
+tones, `offensive`/`harassment` in accent amber tones, `none` in a neutral
+muted tone. All icons are `lucide-react` components, never emoji. Every
+interactive element (button, file input label) has visible hover and focus
+states and `cursor-pointer`.
 
 **Interfaces:**
 - Consumes: `createConversation`, `uploadConversation` from `api/client.ts`; `Conversation`, `Message`, `EscalationSnapshot` types.
-- Produces: `AnalyzerPage` component — a textarea for pasting messages (one per line) plus a file upload input, a language selector (en/hi/ta), a submit button, and on success renders `MessageList` (per-message category badges + toxicity score) and `EscalationChart` (line chart of `escalation_score` over `seq_index`, colored/annotated by `status`).
+- Produces: `AppLayout` (shared shell: header + nav, used by all three pages
+  from Task 20 onward); `CategoryBadge` (a small pill component mapping a
+  category name to its semantic color); `AnalyzerPage` component — a
+  textarea for pasting messages (one per line) plus a file upload input, a
+  language selector (en/hi/ta), a submit button, and on success renders
+  `MessageList` (per-message category badges + toxicity score) and
+  `EscalationChart` (line chart of `escalation_score` over `seq_index`,
+  colored/annotated by `status`).
 
-- [ ] **Step 1: Install react-router-dom routing in `App.tsx`**
+- [ ] **Step 1: Create `components/AppLayout.tsx`, a shared header/nav shell**
+
+```tsx
+// frontend/src/components/AppLayout.tsx
+import { NavLink } from 'react-router-dom'
+import { ShieldAlert, MessageSquareText, FolderOpen, TrendingUp } from 'lucide-react'
+
+const navLinkClasses = ({ isActive }: { isActive: boolean }) =>
+  `flex items-center gap-2 rounded px-3 py-2 text-sm font-medium transition-colors duration-200 cursor-pointer ${
+    isActive
+      ? 'bg-primary text-on-primary'
+      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+  }`
+
+export default function AppLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen bg-background">
+      <header className="border-b border-border bg-card px-6 py-4">
+        <div className="mx-auto flex max-w-6xl items-center gap-3">
+          <ShieldAlert className="h-6 w-6 text-primary" aria-hidden="true" />
+          <div>
+            <h1 className="text-xl font-semibold text-foreground">ContextShield</h1>
+            <p className="text-sm text-muted-foreground">
+              Multilingual harmful content detection and trend analysis
+            </p>
+          </div>
+        </div>
+      </header>
+      <nav className="border-b border-border bg-card px-6 py-2">
+        <div className="mx-auto flex max-w-6xl gap-2">
+          <NavLink to="/" end className={navLinkClasses}>
+            <MessageSquareText className="h-4 w-4" aria-hidden="true" />
+            Analyzer
+          </NavLink>
+          <NavLink to="/browse" className={navLinkClasses}>
+            <FolderOpen className="h-4 w-4" aria-hidden="true" />
+            Browse
+          </NavLink>
+          <NavLink to="/trends" className={navLinkClasses}>
+            <TrendingUp className="h-4 w-4" aria-hidden="true" />
+            Trends
+          </NavLink>
+        </div>
+      </nav>
+      <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
+    </div>
+  )
+}
+```
+
+- [ ] **Step 2: Wire `AppLayout` into `App.tsx` with routing**
 
 ```tsx
 // frontend/src/App.tsx
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import AppLayout from './components/AppLayout'
 import AnalyzerPage from './pages/AnalyzerPage'
 
 function App() {
   return (
     <BrowserRouter>
-      <nav>
-        <Link to="/">Analyzer</Link>
-      </nav>
-      <Routes>
-        <Route path="/" element={<AnalyzerPage />} />
-      </Routes>
+      <AppLayout>
+        <Routes>
+          <Route path="/" element={<AnalyzerPage />} />
+        </Routes>
+      </AppLayout>
     </BrowserRouter>
   )
 }
@@ -3132,11 +3282,46 @@ function App() {
 export default App
 ```
 
-- [ ] **Step 2: Create `components/MessageList.tsx`**
+- [ ] **Step 3: Create `components/CategoryBadge.tsx`**
+
+```tsx
+// frontend/src/components/CategoryBadge.tsx
+const CATEGORY_STYLES: Record<string, string> = {
+  hate_speech: 'bg-destructive/10 text-destructive border-destructive/30',
+  threat: 'bg-destructive/10 text-destructive border-destructive/30',
+  offensive: 'bg-accent/10 text-accent border-accent/30',
+  harassment: 'bg-accent/10 text-accent border-accent/30',
+  none: 'bg-muted text-muted-foreground border-border',
+}
+
+const CATEGORY_LABELS: Record<string, string> = {
+  hate_speech: 'Hate speech',
+  threat: 'Threat',
+  offensive: 'Offensive',
+  harassment: 'Harassment',
+  none: 'None',
+}
+
+export default function CategoryBadge({ category, probability }: { category: string; probability: number }) {
+  const style = CATEGORY_STYLES[category] ?? CATEGORY_STYLES.none
+  const label = CATEGORY_LABELS[category] ?? category
+  return (
+    <span
+      className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium ${style}`}
+    >
+      {label}
+      <span className="font-mono">{probability.toFixed(2)}</span>
+    </span>
+  )
+}
+```
+
+- [ ] **Step 4: Create `components/MessageList.tsx`**
 
 ```tsx
 // frontend/src/components/MessageList.tsx
 import type { Message } from '../api/types'
+import CategoryBadge from './CategoryBadge'
 
 function topCategory(message: Message): { category: string; probability: number } {
   const nonNone = message.labels.filter((l) => l.category !== 'none')
@@ -3148,14 +3333,14 @@ function topCategory(message: Message): { category: string; probability: number 
 
 export default function MessageList({ messages }: { messages: Message[] }) {
   return (
-    <ul>
+    <ul className="divide-y divide-border rounded-lg border border-border bg-card shadow-sm">
       {messages.map((message) => {
         const top = topCategory(message)
         return (
-          <li key={message.id}>
-            <span>{message.text}</span>
+          <li key={message.id} className="flex items-center justify-between gap-4 px-4 py-3">
+            <span className="text-sm text-foreground">{message.text}</span>
             {top.probability > 0.5 && (
-              <span> [{top.category}: {top.probability.toFixed(2)}]</span>
+              <CategoryBadge category={top.category} probability={top.probability} />
             )}
           </li>
         )
@@ -3165,16 +3350,26 @@ export default function MessageList({ messages }: { messages: Message[] }) {
 }
 ```
 
-- [ ] **Step 3: Create `components/EscalationChart.tsx`**
+- [ ] **Step 5: Create `components/EscalationChart.tsx`**
 
 ```tsx
 // frontend/src/components/EscalationChart.tsx
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts'
 import type { EscalationSnapshot } from '../api/types'
 
+const STATUS_COLOR: Record<string, string> = {
+  stable: '#3B82F6',
+  elevated: '#D97706',
+  escalating: '#DC2626',
+}
+
 export default function EscalationChart({ snapshots }: { snapshots: EscalationSnapshot[] }) {
   if (snapshots.length === 0) {
-    return <p>Not enough messages for an escalation timeline (need at least 3).</p>
+    return (
+      <p className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground shadow-sm">
+        Not enough messages for an escalation timeline (need at least 3).
+      </p>
+    )
   }
 
   const data = snapshots.map((s) => ({
@@ -3182,26 +3377,31 @@ export default function EscalationChart({ snapshots }: { snapshots: EscalationSn
     escalation_score: s.escalation_score,
     status: s.status,
   }))
+  const latestStatus = data[data.length - 1].status
+  const lineColor = STATUS_COLOR[latestStatus] ?? '#3B82F6'
 
   return (
-    <ResponsiveContainer width="100%" height={300}>
-      <LineChart data={data}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="seq_index" label={{ value: 'Message index', position: 'insideBottom', offset: -5 }} />
-        <YAxis domain={[0, 1]} />
-        <Tooltip formatter={(value: number, _name, props) => [`${value.toFixed(2)} (${props.payload.status})`, 'Escalation score']} />
-        <Line type="monotone" dataKey="escalation_score" stroke="#d62728" strokeWidth={2} dot />
-      </LineChart>
-    </ResponsiveContainer>
+    <div className="rounded-lg border border-border bg-card p-4 shadow-sm">
+      <ResponsiveContainer width="100%" height={280}>
+        <LineChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#DBEAFE" />
+          <XAxis dataKey="seq_index" label={{ value: 'Message index', position: 'insideBottom', offset: -5 }} stroke="#475569" fontSize={12} />
+          <YAxis domain={[0, 1]} stroke="#475569" fontSize={12} />
+          <Tooltip formatter={(value: number, _name, props) => [`${value.toFixed(2)} (${props.payload.status})`, 'Escalation score']} />
+          <Line type="monotone" dataKey="escalation_score" stroke={lineColor} strokeWidth={2} dot />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
   )
 }
 ```
 
-- [ ] **Step 4: Create `pages/AnalyzerPage.tsx`**
+- [ ] **Step 6: Create `pages/AnalyzerPage.tsx`**
 
 ```tsx
 // frontend/src/pages/AnalyzerPage.tsx
 import { useState } from 'react'
+import { Upload, Loader2 } from 'lucide-react'
 import { createConversation, uploadConversation } from '../api/client'
 import type { Conversation } from '../api/types'
 import MessageList from '../components/MessageList'
@@ -3240,35 +3440,66 @@ export default function AnalyzerPage() {
   }
 
   return (
-    <div>
-      <h1>Analyze a Conversation</h1>
-      <form onSubmit={handleSubmit}>
+    <div className="flex flex-col gap-6">
+      <div>
+        <h2 className="text-lg font-semibold text-foreground">Analyze a Conversation</h2>
+        <p className="text-sm text-muted-foreground">
+          Paste a conversation or upload a text file to detect harmful content and escalation.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4 rounded-lg border border-border bg-card p-6 shadow-sm">
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Paste one message per line"
           rows={8}
-          cols={60}
           disabled={!!file}
+          className="w-full rounded border border-border px-4 py-3 text-sm text-foreground transition-colors duration-200 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:bg-muted disabled:text-muted-foreground"
         />
-        <div>
-          <input type="file" accept=".txt" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+
+        <div className="flex flex-wrap items-center gap-4">
+          <label className="flex cursor-pointer items-center gap-2 rounded border border-border px-3 py-2 text-sm text-muted-foreground transition-colors duration-200 hover:border-primary hover:text-primary">
+            <Upload className="h-4 w-4" aria-hidden="true" />
+            {file ? file.name : 'Upload .txt file'}
+            <input
+              type="file"
+              accept=".txt"
+              className="hidden"
+              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+            />
+          </label>
+
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value as 'en' | 'hi' | 'ta')}
+            className="cursor-pointer rounded border border-border px-3 py-2 text-sm text-foreground transition-colors duration-200 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          >
+            <option value="en">English</option>
+            <option value="hi">Hindi</option>
+            <option value="ta">Tamil</option>
+          </select>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="ml-auto flex items-center gap-2 rounded bg-accent px-6 py-2 text-sm font-semibold text-on-accent transition-all duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+          >
+            {loading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+            {loading ? 'Analyzing…' : 'Analyze'}
+          </button>
         </div>
-        <select value={language} onChange={(e) => setLanguage(e.target.value as 'en' | 'hi' | 'ta')}>
-          <option value="en">English</option>
-          <option value="hi">Hindi</option>
-          <option value="ta">Tamil</option>
-        </select>
-        <button type="submit" disabled={loading}>
-          {loading ? 'Analyzing...' : 'Analyze'}
-        </button>
       </form>
 
-      {error && <p role="alert">{error}</p>}
+      {error && (
+        <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          {error}
+        </p>
+      )}
 
       {conversation && (
-        <div>
-          <h2>Results</h2>
+        <div className="flex flex-col gap-4">
+          <h3 className="text-base font-semibold text-foreground">Results</h3>
           <MessageList messages={conversation.messages} />
           <EscalationChart snapshots={conversation.escalation_snapshots} />
         </div>
@@ -3278,18 +3509,24 @@ export default function AnalyzerPage() {
 }
 ```
 
-- [ ] **Step 5: Run the dev server and manually verify the Analyzer page works against the running backend**
+- [ ] **Step 7: Run the dev server and manually verify the Analyzer page works against the running backend**
 
 Run backend (`cd backend && uvicorn contextshield.api.main:app --port 8000`)
 and frontend (`cd frontend && npm run dev`) concurrently. Open
-`http://localhost:5173`, paste 4+ lines of text, click Analyze, verify
-message list and escalation chart render without console errors.
+`http://localhost:5173` in the built-in browser tool. Verify visually (not
+just structurally): the header/nav bar renders with the blue-on-white
+ContextShield branding and active-tab highlighting, the form has visible
+borders/padding/rounded corners (not raw unstyled inputs), paste 4+ lines
+of text, click Analyze, verify message list renders with colored category
+badges and the escalation chart renders with a colored line — all without
+console errors. Take a screenshot to confirm visual polish before marking
+this task done.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
 git add frontend/src/
-git commit -m "feat: add Analyzer page with message list and escalation chart"
+git commit -m "feat: add Analyzer page with styled layout, badges, and escalation chart"
 ```
 
 ---
@@ -3298,21 +3535,56 @@ git commit -m "feat: add Analyzer page with message list and escalation chart"
 
 **Files:**
 - Create: `frontend/src/pages/BrowsePage.tsx`
-- Modify: `frontend/src/App.tsx` (add route + nav link)
+- Create: `frontend/src/components/StatusBadge.tsx`
+- Modify: `frontend/src/App.tsx` (add route)
+
+**Design system:** follows `design-system/contextshield/MASTER.md`, same
+conventions as Task 20 — card list items with hover states, semantic status
+colors, `lucide-react` icons only.
 
 **Interfaces:**
 - Consumes: `listConversations`, `getConversation` from `api/client.ts`.
-- Produces: `BrowsePage` — fetches and lists conversations (id, language, source, message count, latest escalation status), clicking one shows its full detail (reusing `MessageList` and `EscalationChart`).
+- Produces: `StatusBadge` (maps an escalation status string to a colored
+  pill: stable=blue, elevated=amber, escalating=red); `BrowsePage` —
+  fetches and lists conversations (id, language, source, message count,
+  latest escalation status) as a clickable card list, clicking one shows
+  its full detail (reusing `MessageList` and `EscalationChart`) in a
+  two-column layout on wide screens.
 
-- [ ] **Step 1: Create `pages/BrowsePage.tsx`**
+- [ ] **Step 1: Create `components/StatusBadge.tsx`**
+
+```tsx
+// frontend/src/components/StatusBadge.tsx
+const STATUS_STYLES: Record<string, string> = {
+  stable: 'bg-secondary/10 text-secondary border-secondary/30',
+  elevated: 'bg-accent/10 text-accent border-accent/30',
+  escalating: 'bg-destructive/10 text-destructive border-destructive/30',
+  'n/a': 'bg-muted text-muted-foreground border-border',
+}
+
+export default function StatusBadge({ status }: { status: string }) {
+  const style = STATUS_STYLES[status] ?? STATUS_STYLES['n/a']
+  return (
+    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium capitalize ${style}`}>
+      {status}
+    </span>
+  )
+}
+```
+
+- [ ] **Step 2: Create `pages/BrowsePage.tsx`**
 
 ```tsx
 // frontend/src/pages/BrowsePage.tsx
 import { useEffect, useState } from 'react'
+import { Globe2 } from 'lucide-react'
 import { listConversations, getConversation } from '../api/client'
 import type { Conversation } from '../api/types'
 import MessageList from '../components/MessageList'
 import EscalationChart from '../components/EscalationChart'
+import StatusBadge from '../components/StatusBadge'
+
+const LANGUAGE_LABELS: Record<string, string> = { en: 'English', hi: 'Hindi', ta: 'Tamil' }
 
 export default function BrowsePage() {
   const [conversations, setConversations] = useState<Conversation[]>([])
@@ -3333,52 +3605,76 @@ export default function BrowsePage() {
   }
 
   return (
-    <div>
-      <h1>Browse Conversations</h1>
-      {error && <p role="alert">{error}</p>}
-      <ul>
-        {conversations.map((convo) => {
-          const latestStatus = convo.escalation_snapshots.at(-1)?.status ?? 'n/a'
-          return (
-            <li key={convo.id}>
-              <button onClick={() => handleSelect(convo.id)}>
-                #{convo.id} — {convo.language} — {convo.source} — {convo.messages.length} messages — {latestStatus}
-              </button>
-            </li>
-          )
-        })}
-      </ul>
+    <div className="flex flex-col gap-6">
+      <div>
+        <h2 className="text-lg font-semibold text-foreground">Browse Conversations</h2>
+        <p className="text-sm text-muted-foreground">Seeded and previously analyzed conversations.</p>
+      </div>
 
-      {selected && (
-        <div>
-          <h2>Conversation #{selected.id}</h2>
-          <MessageList messages={selected.messages} />
-          <EscalationChart snapshots={selected.escalation_snapshots} />
-        </div>
+      {error && (
+        <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          {error}
+        </p>
       )}
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <ul className="flex flex-col gap-2">
+          {conversations.map((convo) => {
+            const latestStatus = convo.escalation_snapshots.at(-1)?.status ?? 'n/a'
+            const isSelected = selected?.id === convo.id
+            return (
+              <li key={convo.id}>
+                <button
+                  onClick={() => handleSelect(convo.id)}
+                  className={`flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg border px-4 py-3 text-left text-sm shadow-sm transition-colors duration-200 ${
+                    isSelected ? 'border-primary bg-primary/5' : 'border-border bg-card hover:border-primary/50'
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <Globe2 className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                    <span className="font-medium text-foreground">#{convo.id}</span>
+                    <span className="text-muted-foreground">
+                      {LANGUAGE_LABELS[convo.language] ?? convo.language} · {convo.source} · {convo.messages.length} msgs
+                    </span>
+                  </span>
+                  <StatusBadge status={latestStatus} />
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+
+        {selected && (
+          <div className="flex flex-col gap-4">
+            <h3 className="text-base font-semibold text-foreground">Conversation #{selected.id}</h3>
+            <MessageList messages={selected.messages} />
+            <EscalationChart snapshots={selected.escalation_snapshots} />
+          </div>
+        )}
+      </div>
     </div>
   )
 }
 ```
 
-- [ ] **Step 2: Wire the route into `App.tsx`**
+- [ ] **Step 3: Wire the route into `App.tsx`**
 
 ```tsx
 // frontend/src/App.tsx
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import AppLayout from './components/AppLayout'
 import AnalyzerPage from './pages/AnalyzerPage'
 import BrowsePage from './pages/BrowsePage'
 
 function App() {
   return (
     <BrowserRouter>
-      <nav>
-        <Link to="/">Analyzer</Link> | <Link to="/browse">Browse</Link>
-      </nav>
-      <Routes>
-        <Route path="/" element={<AnalyzerPage />} />
-        <Route path="/browse" element={<BrowsePage />} />
-      </Routes>
+      <AppLayout>
+        <Routes>
+          <Route path="/" element={<AnalyzerPage />} />
+          <Route path="/browse" element={<BrowsePage />} />
+        </Routes>
+      </AppLayout>
     </BrowserRouter>
   )
 }
@@ -3386,16 +3682,19 @@ function App() {
 export default App
 ```
 
-- [ ] **Step 3: Manually verify in browser**
+- [ ] **Step 4: Manually verify in browser**
 
 With backend seeded (Task 15 run) and both servers running, navigate to
-`/browse`, verify the list populates and clicking an item shows its detail.
+`/browse` in the built-in browser tool. Verify visually: conversation cards
+render with hover/selected states, status badges show the correct semantic
+color, and clicking a card shows its detail in the second column on a wide
+viewport without layout shift. Take a screenshot to confirm.
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add frontend/src/
-git commit -m "feat: add Browse page for listing and inspecting conversations"
+git commit -m "feat: add Browse page with styled conversation cards and status badges"
 ```
 
 ---
@@ -3406,13 +3705,55 @@ git commit -m "feat: add Browse page for listing and inspecting conversations"
 - Create: `frontend/src/pages/TrendsPage.tsx`
 - Create: `frontend/src/components/TrendChart.tsx`
 - Create: `frontend/src/components/TopicCards.tsx`
-- Modify: `frontend/src/App.tsx` (add route + nav link)
+- Create: `frontend/src/components/StatTile.tsx`
+- Modify: `frontend/src/App.tsx` (add route)
+
+**Design system:** follows `design-system/contextshield/MASTER.md`, "Data-Dense
+Dashboard" style — this page is the one that most directly matches that
+style's intent (multiple charts/widgets, KPI cards, minimal padding, space-
+efficient grid layout). Category colors reuse the same semantic mapping as
+`CategoryBadge` (Task 20) so hate_speech/threat read as red and
+offensive/harassment read as amber consistently across the whole app.
 
 **Interfaces:**
 - Consumes: `getTrends` from `api/client.ts`; `TrendSnapshot` type.
-- Produces: `TrendsPage` — filter controls (language, category dropdowns), a `TrendChart` (bar/line chart of `message_count` over `time_bucket`, grouped/colored by `category`), and `TopicCards` (cards showing distinct `topic_id`/`topic_terms` combinations found in the current filtered snapshots).
+- Produces: `StatTile` (a small KPI card showing a number + label); `TrendChart`
+  (bar chart of `message_count` over `time_bucket`, grouped/colored by
+  `category`); `TopicCards` (cards showing distinct `topic_id`/`topic_terms`
+  combinations found in the current filtered snapshots); `TrendsPage` — a
+  row of summary `StatTile`s, filter controls (language, category
+  dropdowns), the `TrendChart`, and the `TopicCards` grid.
 
-- [ ] **Step 1: Create `components/TrendChart.tsx`**
+- [ ] **Step 1: Create `components/StatTile.tsx`**
+
+```tsx
+// frontend/src/components/StatTile.tsx
+import type { LucideIcon } from 'lucide-react'
+
+export default function StatTile({
+  label,
+  value,
+  icon: Icon,
+}: {
+  label: string
+  value: number | string
+  icon: LucideIcon
+}) {
+  return (
+    <div className="flex items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-sm">
+      <div className="rounded bg-primary/10 p-2">
+        <Icon className="h-5 w-5 text-primary" aria-hidden="true" />
+      </div>
+      <div>
+        <p className="font-mono text-2xl font-semibold text-foreground">{value}</p>
+        <p className="text-xs text-muted-foreground">{label}</p>
+      </div>
+    </div>
+  )
+}
+```
+
+- [ ] **Step 2: Create `components/TrendChart.tsx`**
 
 ```tsx
 // frontend/src/components/TrendChart.tsx
@@ -3420,10 +3761,10 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid, Responsive
 import type { TrendSnapshot } from '../api/types'
 
 const COLORS: Record<string, string> = {
-  hate_speech: '#d62728',
-  offensive: '#ff7f0e',
-  threat: '#9467bd',
-  harassment: '#8c564b',
+  hate_speech: '#DC2626',
+  threat: '#DC2626',
+  offensive: '#D97706',
+  harassment: '#D97706',
 }
 
 export default function TrendChart({ snapshots }: { snapshots: TrendSnapshot[] }) {
@@ -3440,30 +3781,37 @@ export default function TrendChart({ snapshots }: { snapshots: TrendSnapshot[] }
   const categories = Array.from(new Set(snapshots.map((s) => s.category)))
 
   if (data.length === 0) {
-    return <p>No trend data available yet.</p>
+    return (
+      <p className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground shadow-sm">
+        No trend data available yet.
+      </p>
+    )
   }
 
   return (
-    <ResponsiveContainer width="100%" height={300}>
-      <BarChart data={data}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="time_bucket" />
-        <YAxis />
-        <Tooltip />
-        <Legend />
-        {categories.map((category) => (
-          <Bar key={category} dataKey={category} stackId="a" fill={COLORS[category] ?? '#7f7f7f'} />
-        ))}
-      </BarChart>
-    </ResponsiveContainer>
+    <div className="rounded-lg border border-border bg-card p-4 shadow-sm">
+      <ResponsiveContainer width="100%" height={300}>
+        <BarChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#DBEAFE" />
+          <XAxis dataKey="time_bucket" stroke="#475569" fontSize={12} />
+          <YAxis stroke="#475569" fontSize={12} />
+          <Tooltip />
+          <Legend />
+          {categories.map((category) => (
+            <Bar key={category} dataKey={category} stackId="a" fill={COLORS[category] ?? '#3B82F6'} radius={[2, 2, 0, 0]} />
+          ))}
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
   )
 }
 ```
 
-- [ ] **Step 2: Create `components/TopicCards.tsx`**
+- [ ] **Step 3: Create `components/TopicCards.tsx`**
 
 ```tsx
 // frontend/src/components/TopicCards.tsx
+import { Hash } from 'lucide-react'
 import type { TrendSnapshot } from '../api/types'
 
 export default function TopicCards({ snapshots }: { snapshots: TrendSnapshot[] }) {
@@ -3475,15 +3823,22 @@ export default function TopicCards({ snapshots }: { snapshots: TrendSnapshot[] }
   }
 
   if (seen.size === 0) {
-    return <p>No topic clusters available yet (need more harmful messages).</p>
+    return (
+      <p className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground shadow-sm">
+        No topic clusters available yet (need more harmful messages).
+      </p>
+    )
   }
 
   return (
-    <div>
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {Array.from(seen.entries()).map(([topicId, terms]) => (
-        <div key={topicId} style={{ border: '1px solid #ccc', padding: '0.5rem', margin: '0.5rem 0' }}>
-          <strong>Topic {topicId}</strong>
-          <p>{terms}</p>
+        <div key={topicId} className="rounded-lg border border-border bg-card p-4 shadow-sm transition-shadow duration-200 hover:shadow-md">
+          <div className="mb-1 flex items-center gap-1.5 text-sm font-semibold text-foreground">
+            <Hash className="h-4 w-4 text-primary" aria-hidden="true" />
+            Topic {topicId}
+          </div>
+          <p className="text-sm text-muted-foreground">{terms}</p>
         </div>
       ))}
     </div>
@@ -3491,15 +3846,17 @@ export default function TopicCards({ snapshots }: { snapshots: TrendSnapshot[] }
 }
 ```
 
-- [ ] **Step 3: Create `pages/TrendsPage.tsx`**
+- [ ] **Step 4: Create `pages/TrendsPage.tsx`**
 
 ```tsx
 // frontend/src/pages/TrendsPage.tsx
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { BarChart3, MessagesSquare, Layers } from 'lucide-react'
 import { getTrends } from '../api/client'
 import type { TrendSnapshot } from '../api/types'
 import TrendChart from '../components/TrendChart'
 import TopicCards from '../components/TopicCards'
+import StatTile from '../components/StatTile'
 
 export default function TrendsPage() {
   const [snapshots, setSnapshots] = useState<TrendSnapshot[]>([])
@@ -3513,18 +3870,45 @@ export default function TrendsPage() {
       .catch((err) => setError(err.message))
   }, [language, category])
 
+  const totalMessages = useMemo(() => snapshots.reduce((sum, s) => sum + s.message_count, 0), [snapshots])
+  const topicCount = useMemo(() => new Set(snapshots.map((s) => s.topic_id).filter((id) => id !== null)).size, [snapshots])
+  const categoryCount = useMemo(() => new Set(snapshots.map((s) => s.category)).size, [snapshots])
+
   return (
-    <div>
-      <h1>Trends Dashboard</h1>
-      {error && <p role="alert">{error}</p>}
+    <div className="flex flex-col gap-6">
       <div>
-        <select value={language} onChange={(e) => setLanguage(e.target.value)}>
+        <h2 className="text-lg font-semibold text-foreground">Trends Dashboard</h2>
+        <p className="text-sm text-muted-foreground">Harmful content volume and emerging topics over time.</p>
+      </div>
+
+      {error && (
+        <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          {error}
+        </p>
+      )}
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <StatTile label="Flagged messages" value={totalMessages} icon={MessagesSquare} />
+        <StatTile label="Categories represented" value={categoryCount} icon={BarChart3} />
+        <StatTile label="Topic clusters" value={topicCount} icon={Layers} />
+      </div>
+
+      <div className="flex flex-wrap gap-3">
+        <select
+          value={language}
+          onChange={(e) => setLanguage(e.target.value)}
+          className="cursor-pointer rounded border border-border px-3 py-2 text-sm text-foreground transition-colors duration-200 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+        >
           <option value="">All languages</option>
           <option value="en">English</option>
           <option value="hi">Hindi</option>
           <option value="ta">Tamil</option>
         </select>
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="cursor-pointer rounded border border-border px-3 py-2 text-sm text-foreground transition-colors duration-200 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+        >
           <option value="">All categories</option>
           <option value="hate_speech">Hate speech</option>
           <option value="offensive">Offensive</option>
@@ -3532,19 +3916,24 @@ export default function TrendsPage() {
           <option value="harassment">Harassment</option>
         </select>
       </div>
+
       <TrendChart snapshots={snapshots} />
-      <h2>Emerging Topics</h2>
-      <TopicCards snapshots={snapshots} />
+
+      <div>
+        <h3 className="mb-3 text-base font-semibold text-foreground">Emerging Topics</h3>
+        <TopicCards snapshots={snapshots} />
+      </div>
     </div>
   )
 }
 ```
 
-- [ ] **Step 4: Wire the route into `App.tsx`**
+- [ ] **Step 5: Wire the route into `App.tsx`**
 
 ```tsx
 // frontend/src/App.tsx
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import AppLayout from './components/AppLayout'
 import AnalyzerPage from './pages/AnalyzerPage'
 import BrowsePage from './pages/BrowsePage'
 import TrendsPage from './pages/TrendsPage'
@@ -3552,14 +3941,13 @@ import TrendsPage from './pages/TrendsPage'
 function App() {
   return (
     <BrowserRouter>
-      <nav>
-        <Link to="/">Analyzer</Link> | <Link to="/browse">Browse</Link> | <Link to="/trends">Trends</Link>
-      </nav>
-      <Routes>
-        <Route path="/" element={<AnalyzerPage />} />
-        <Route path="/browse" element={<BrowsePage />} />
-        <Route path="/trends" element={<TrendsPage />} />
-      </Routes>
+      <AppLayout>
+        <Routes>
+          <Route path="/" element={<AnalyzerPage />} />
+          <Route path="/browse" element={<BrowsePage />} />
+          <Route path="/trends" element={<TrendsPage />} />
+        </Routes>
+      </AppLayout>
     </BrowserRouter>
   )
 }
@@ -3567,16 +3955,20 @@ function App() {
 export default App
 ```
 
-- [ ] **Step 5: Manually verify in browser**
+- [ ] **Step 6: Manually verify in browser**
 
-With backend seeded and running, navigate to `/trends`, verify the bar chart
-and topic cards render, and that language/category filters refetch data.
+With backend seeded and running, navigate to `/trends` in the built-in
+browser tool. Verify visually: the three KPI stat tiles render with icons
+and correct numbers, the stacked bar chart renders with red/amber category
+colors and a legend, topic cards render in a responsive grid with hover
+shadow, and language/category filters refetch data without a full page
+reload or layout jump. Take a screenshot to confirm.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
 git add frontend/src/
-git commit -m "feat: add Trends Dashboard page with charts and topic cards"
+git commit -m "feat: add Trends Dashboard page with KPI tiles, chart, and topic cards"
 ```
 
 ---
