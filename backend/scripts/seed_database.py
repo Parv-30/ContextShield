@@ -57,6 +57,7 @@ def main():
         convo = service.create_conversation(messages, source="seed", language=language)
 
         convo_time = base_time + timedelta(days=i)
+        convo.created_at = convo_time
         for message in convo.messages:
             message.created_at = convo_time
         session.commit()

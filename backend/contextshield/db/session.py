@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 
 from contextshield.db.models import Base
 
+# Dev-only default; any real deployment must override this via CONTEXTSHIELD_DATABASE_URL.
 DEFAULT_DATABASE_URL = "postgresql+psycopg2://postgres:postgres@localhost:5432/contextshield"
 
 

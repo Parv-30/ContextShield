@@ -21,13 +21,18 @@ def get_db_session():
         session.close()
 
 
+def _resolve_model_dir() -> Path:
+    return Path(
+        os.environ.get(
+            "CONTEXTSHIELD_MODEL_DIR",
+            str(Path(__file__).resolve().parent.parent.parent / "models" / "classifier"),
+        )
+    )
+
+
 @lru_cache(maxsize=1)
 def _load_classifier() -> Classifier:
-    model_dir = os.environ.get(
-        "CONTEXTSHIELD_MODEL_DIR",
-        str(Path(__file__).resolve().parent.parent.parent / "models" / "classifier"),
-    )
-    return Classifier(model_dir)
+    return Classifier(str(_resolve_model_dir()))
 
 
 def get_classifier() -> Classifier:
@@ -35,11 +40,8 @@ def get_classifier() -> Classifier:
 
 
 def get_thresholds() -> tuple[float, float]:
-    model_dir = os.environ.get(
-        "CONTEXTSHIELD_MODEL_DIR",
-        str(Path(__file__).resolve().parent.parent.parent / "models" / "classifier"),
-    )
-    thresholds_path = Path(model_dir) / "thresholds.json"
+    model_dir = _resolve_model_dir()
+    thresholds_path = model_dir / "thresholds.json"
     if not thresholds_path.exists():
         return (0.3, 0.7)
     with open(thresholds_path, encoding="utf-8") as f:
