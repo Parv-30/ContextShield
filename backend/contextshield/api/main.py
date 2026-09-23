@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from contextshield.api.routers import conversations, trends
+from contextshield.api.routers import conversations, trends, uploads
 
 app = FastAPI(title="ContextShield API")
 
@@ -14,3 +14,4 @@ app.add_middleware(
 
 app.include_router(conversations.router)
 app.include_router(trends.router)
+app.include_router(uploads.router)
