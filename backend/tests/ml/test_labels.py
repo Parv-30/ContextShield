@@ -4,6 +4,8 @@ from contextshield.ml.labels import (
     toxicity_score,
     map_hasoc_label,
     map_dravidian_label,
+    map_hasoc_hindi_label,
+    map_davidson_label,
 )
 
 
@@ -59,3 +61,27 @@ def test_map_dravidian_targeted_other_is_offensive():
 
 def test_map_dravidian_not_tamil():
     assert map_dravidian_label("not-Tamil") == ["none"]
+
+
+def test_map_hasoc_hindi_not_offensive():
+    assert map_hasoc_hindi_label("NOT", "NONE") == ["none"]
+
+
+def test_map_hasoc_hindi_simple_hate_offensive_is_offensive():
+    assert map_hasoc_hindi_label("HOF", "SHOF") == ["offensive"]
+
+
+def test_map_hasoc_hindi_complex_hate_offensive_is_hate_speech():
+    assert map_hasoc_hindi_label("HOF", "CHOF") == ["hate_speech"]
+
+
+def test_map_hasoc_hindi_unknown_context_defaults_to_offensive():
+    assert map_hasoc_hindi_label("HOF", "UNKNOWN") == ["offensive"]
+
+
+def test_map_davidson_not_offensive():
+    assert map_davidson_label(0) == ["none"]
+
+
+def test_map_davidson_offensive():
+    assert map_davidson_label(1) == ["offensive"]

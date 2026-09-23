@@ -4,7 +4,12 @@ import random
 from pathlib import Path
 
 from contextshield.ml.dataset import build_examples
-from contextshield.ml.labels import map_hasoc_label, map_dravidian_label
+from contextshield.ml.labels import (
+    map_hasoc_label,
+    map_dravidian_label,
+    map_hasoc_hindi_label,
+    map_davidson_label,
+)
 
 RAW_DIR = Path(__file__).resolve().parent.parent / "data" / "raw"
 PROCESSED_DIR = Path(__file__).resolve().parent.parent / "data" / "processed"
@@ -25,11 +30,22 @@ def dravidian_label_fn(row: dict) -> list[str]:
     return map_dravidian_label(row["label"])
 
 
+def hasoc_hindi_label_fn(row: dict) -> list[str]:
+    return map_hasoc_hindi_label(row["task1"], row.get("task2"))
+
+
+def davidson_label_fn(row: dict) -> list[str]:
+    return map_davidson_label(int(row["label"]))
+
+
 def load_all_examples() -> list[dict]:
     examples = []
     hasoc_en = RAW_DIR / "hasoc_en.csv"
     hasoc_hi = RAW_DIR / "hasoc_hi.csv"
     dravidian_ta = RAW_DIR / "dravidian_ta.csv"
+    davidson_en_real = RAW_DIR / "davidson_en.csv"
+    hasoc_hindi_real = RAW_DIR / "hasoc_hindi_real.csv"
+    dravidian_ta_real = RAW_DIR / "dravidian_ta_real.csv"
 
     found_any = False
     if hasoc_en.exists():
@@ -40,6 +56,15 @@ def load_all_examples() -> list[dict]:
         found_any = True
     if dravidian_ta.exists():
         examples += build_examples(load_csv(dravidian_ta), "text", dravidian_label_fn)
+        found_any = True
+    if davidson_en_real.exists():
+        examples += build_examples(load_csv(davidson_en_real), "text", davidson_label_fn)
+        found_any = True
+    if hasoc_hindi_real.exists():
+        examples += build_examples(load_csv(hasoc_hindi_real), "text", hasoc_hindi_label_fn)
+        found_any = True
+    if dravidian_ta_real.exists():
+        examples += build_examples(load_csv(dravidian_ta_real), "text", dravidian_label_fn)
         found_any = True
 
     if not found_any:

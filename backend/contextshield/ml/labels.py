@@ -23,3 +23,14 @@ def map_dravidian_label(raw_label: str) -> list[str]:
         "Offensive_Targeted_Insult_Other": ["offensive"],
     }
     return mapping.get(raw_label, ["none"])
+
+
+def map_hasoc_hindi_label(binary_class: str, context_class: str | None) -> list[str]:
+    if binary_class == "NOT":
+        return ["none"]
+    mapping = {"SHOF": "offensive", "CHOF": "hate_speech"}
+    return [mapping.get(context_class, "offensive")]
+
+
+def map_davidson_label(label: int) -> list[str]:
+    return ["none"] if label == 0 else ["offensive"]
