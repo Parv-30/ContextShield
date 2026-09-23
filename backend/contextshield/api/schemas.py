@@ -48,3 +48,14 @@ class ConversationOut(BaseModel):
     escalation_snapshots: list[EscalationSnapshotOut]
 
     model_config = {"from_attributes": True}
+
+
+class TrendSnapshotOut(BaseModel):
+    time_bucket: str
+    category: str
+    language: str
+    topic_id: int | None
+    topic_terms: str | None
+    message_count: int
+
+    model_config = {"from_attributes": True}
