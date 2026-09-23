@@ -65,7 +65,24 @@ def test_get_trends_date_range(client_and_session):
     assert resp.json()[0]["time_bucket"] == "2026-02-01"
 
 
-def test_recompute_stub_returns_501(client_and_session):
-    client, _ = client_and_session
+def test_recompute_creates_snapshots_from_harmful_messages(client_and_session):
+    client, session = client_and_session
+    from contextshield.db.models import Conversation, Message, MessageLabel
+    from datetime import datetime, timezone
+
+    convo = Conversation(source="seed", language="en")
+    session.add(convo)
+    session.flush()
+    for i in range(12):
+        msg = Message(conversation_id=convo.id, seq_index=i, text=f"bad message {i}", language="en", created_at=datetime.now(timezone.utc))
+        session.add(msg)
+        session.flush()
+        session.add(MessageLabel(message_id=msg.id, category="offensive", probability=0.9, toxicity_score=0.9))
+    session.commit()
+
     resp = client.post("/trends/recompute")
-    assert resp.status_code == 501
+    assert resp.status_code == 200
+    assert resp.json()["snapshots_created"] >= 1
+
+    trends_resp = client.get("/trends")
+    assert len(trends_resp.json()) >= 1

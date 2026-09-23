@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 
 from contextshield.api import deps
 from contextshield.api.schemas import TrendSnapshotOut
 from contextshield.db.models import TrendSnapshot
+from contextshield.services.trend_service import recompute_trends as run_recompute
 
 router = APIRouter(prefix="/trends", tags=["trends"])
 
@@ -28,5 +29,6 @@ def get_trends(
 
 
 @router.post("/recompute")
-def recompute_trends():
-    raise HTTPException(status_code=501, detail="Not implemented yet")
+def recompute_trends(session=Depends(deps.get_db_session)):
+    count = run_recompute(session)
+    return {"snapshots_created": count}
