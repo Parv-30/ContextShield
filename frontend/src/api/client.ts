@@ -1,12 +1,32 @@
-import type { Conversation, TrendSnapshot } from './types'
+import type { Conversation, TopicSnapshot, TrendSnapshot } from './types'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL as string
 
 async function handleResponse<T>(response: Response): Promise<T> {
-  const body = await response.json()
-  if (!response.ok) {
-    throw new Error(body.detail ?? 'Request failed')
+  const text = await response.text()
+  let body: any = undefined
+  if (text) {
+    try {
+      body = JSON.parse(text)
+    } catch {
+      body = undefined
+    }
   }
+
+  if (!response.ok) {
+    const detail = body?.detail
+    if (typeof detail === 'string') {
+      throw new Error(detail)
+    }
+    if (Array.isArray(detail)) {
+      const messages = detail
+        .map((item) => (item && typeof item === 'object' && 'msg' in item ? String(item.msg) : String(item)))
+        .join(', ')
+      throw new Error(messages || `Request failed (${response.status})`)
+    }
+    throw new Error(`Request failed (${response.status})`)
+  }
+
   return body as T
 }
 
@@ -58,4 +78,9 @@ export async function getTrends(filters?: {
   const query = params.toString()
   const response = await fetch(`${BASE_URL}/trends${query ? `?${query}` : ''}`)
   return handleResponse<TrendSnapshot[]>(response)
+}
+
+export async function getTopics(): Promise<TopicSnapshot[]> {
+  const response = await fetch(`${BASE_URL}/trends/topics`)
+  return handleResponse<TopicSnapshot[]>(response)
 }
