@@ -1,4 +1,5 @@
 # backend/scripts/seed_database.py
+import argparse
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -39,6 +40,15 @@ def chunk_by_language(examples: list[dict], size: int) -> list[list[dict]]:
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--max-conversations-per-language",
+        type=int,
+        default=None,
+        help="Cap the number of seeded conversations per language (each conversation is CHUNK_SIZE messages). Useful when the processed dataset is large.",
+    )
+    args = parser.parse_args()
+
     engine = get_default_engine()
     init_db(engine)
     session = get_session_factory(engine)()
@@ -49,6 +59,16 @@ def main():
 
     all_examples = load_jsonl(DATA_DIR / "train.jsonl") + load_jsonl(DATA_DIR / "val.jsonl") + load_jsonl(DATA_DIR / "test.jsonl")
     chunks = chunk_by_language(all_examples, CHUNK_SIZE)
+
+    if args.max_conversations_per_language is not None:
+        by_language: dict[str, list] = {}
+        for chunk in chunks:
+            by_language.setdefault(chunk[0]["language"], []).append(chunk)
+        chunks = [
+            chunk
+            for lang_chunks in by_language.values()
+            for chunk in lang_chunks[: args.max_conversations_per_language]
+        ]
 
     base_time = datetime.now(timezone.utc) - timedelta(days=90)
     for i, chunk in enumerate(chunks):
