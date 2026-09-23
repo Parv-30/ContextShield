@@ -66,3 +66,24 @@ def test_upload_rejects_empty_file(client):
         data={"language": "en"},
     )
     assert resp.status_code == 422
+
+
+def test_upload_rejects_message_over_2000_chars(client):
+    long_line = ("a" * 2001).encode("utf-8")
+    file_content = b"hello there\n" + long_line + b"\n"
+    resp = client.post(
+        "/conversations/upload",
+        files={"file": ("convo.txt", io.BytesIO(file_content), "text/plain")},
+        data={"language": "en"},
+    )
+    assert resp.status_code == 422
+
+
+def test_upload_rejects_non_utf8_bytes(client):
+    file_content = "hello there".encode("utf-8") + b"\n" + b"\xff\xfe\x00invalid"
+    resp = client.post(
+        "/conversations/upload",
+        files={"file": ("convo.txt", io.BytesIO(file_content), "text/plain")},
+        data={"language": "en"},
+    )
+    assert resp.status_code == 422
