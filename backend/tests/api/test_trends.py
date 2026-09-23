@@ -86,3 +86,14 @@ def test_recompute_creates_snapshots_from_harmful_messages(client_and_session):
 
     trends_resp = client.get("/trends")
     assert len(trends_resp.json()) >= 1
+    # New code path no longer stamps a misleading global topic onto trend rows.
+    for row in trends_resp.json():
+        assert row["topic_id"] is None
+        assert row["topic_terms"] is None
+
+    topics_resp = client.get("/trends/topics")
+    assert topics_resp.status_code == 200
+    for topic in topics_resp.json():
+        assert "topic_id" in topic
+        assert "topic_terms" in topic
+        assert "topic_examples" in topic

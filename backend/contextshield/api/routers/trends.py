@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 
 from contextshield.api import deps
-from contextshield.api.schemas import TrendSnapshotOut
-from contextshield.db.models import TrendSnapshot
+from contextshield.api.schemas import TopicSnapshotOut, TrendSnapshotOut
+from contextshield.db.models import TopicSnapshot, TrendSnapshot
 from contextshield.services.trend_service import recompute_trends as run_recompute
 
 router = APIRouter(prefix="/trends", tags=["trends"])
@@ -26,6 +26,11 @@ def get_trends(
     if language is not None:
         query = query.filter(TrendSnapshot.language == language)
     return query.all()
+
+
+@router.get("/topics", response_model=list[TopicSnapshotOut])
+def get_topics(session=Depends(deps.get_db_session)):
+    return session.query(TopicSnapshot).all()
 
 
 @router.post("/recompute")

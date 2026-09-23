@@ -37,3 +37,11 @@ export interface TrendSnapshot {
   topic_terms: string | null
   message_count: number
 }
+
+export interface TopicSnapshot {
+  id: number
+  topic_id: number
+  topic_terms: string
+  topic_examples: string
+  created_at: string
+}

@@ -1,14 +1,15 @@
 // frontend/src/pages/TrendsPage.tsx
 import { useEffect, useMemo, useState } from 'react'
 import { BarChart3, MessagesSquare, Layers } from 'lucide-react'
-import { getTrends } from '../api/client'
-import type { TrendSnapshot } from '../api/types'
+import { getTopics, getTrends } from '../api/client'
+import type { TopicSnapshot, TrendSnapshot } from '../api/types'
 import TrendChart from '../components/TrendChart'
 import TopicCards from '../components/TopicCards'
 import StatTile from '../components/StatTile'
 
 export default function TrendsPage() {
   const [snapshots, setSnapshots] = useState<TrendSnapshot[]>([])
+  const [topics, setTopics] = useState<TopicSnapshot[]>([])
   const [language, setLanguage] = useState('')
   const [category, setCategory] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -19,8 +20,14 @@ export default function TrendsPage() {
       .catch((err) => setError(err.message))
   }, [language, category])
 
+  useEffect(() => {
+    getTopics()
+      .then(setTopics)
+      .catch((err) => setError(err.message))
+  }, [])
+
   const totalMessages = useMemo(() => snapshots.reduce((sum, s) => sum + s.message_count, 0), [snapshots])
-  const topicCount = useMemo(() => new Set(snapshots.map((s) => s.topic_id).filter((id) => id !== null)).size, [snapshots])
+  const topicCount = topics.length
   const categoryCount = useMemo(() => new Set(snapshots.map((s) => s.category)).size, [snapshots])
 
   return (
@@ -70,7 +77,7 @@ export default function TrendsPage() {
 
       <div>
         <h3 className="mb-3 text-base font-semibold text-foreground">Emerging Topics</h3>
-        <TopicCards snapshots={snapshots} />
+        <TopicCards topics={topics} />
       </div>
     </div>
   )

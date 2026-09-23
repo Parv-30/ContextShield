@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Literal
 from pydantic import BaseModel, Field
 
@@ -57,5 +58,15 @@ class TrendSnapshotOut(BaseModel):
     topic_id: int | None
     topic_terms: str | None
     message_count: int
+
+    model_config = {"from_attributes": True}
+
+
+class TopicSnapshotOut(BaseModel):
+    id: int
+    topic_id: int
+    topic_terms: str
+    topic_examples: str
+    created_at: datetime
 
     model_config = {"from_attributes": True}

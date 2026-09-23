@@ -72,6 +72,18 @@ class TrendSnapshot(Base):
     time_bucket: Mapped[str] = mapped_column(String(16))
     category: Mapped[str] = mapped_column(String(32))
     language: Mapped[str] = mapped_column(String(8))
+    # Kept for backward compatibility with existing rows/tests. New code no longer
+    # populates these with a misleading global topic value - see TopicSnapshot instead.
     topic_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
     topic_terms: Mapped[str | None] = mapped_column(String(500), nullable=True)
     message_count: Mapped[int] = mapped_column(Integer)
+
+
+class TopicSnapshot(Base):
+    __tablename__ = "topic_snapshots"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    topic_id: Mapped[int] = mapped_column(Integer)
+    topic_terms: Mapped[str] = mapped_column(String(500))
+    topic_examples: Mapped[str] = mapped_column(String(4000))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
